@@ -64,8 +64,11 @@ Database structure:
     1|running
     2|complete
   wishes table has a list of the project names, with the status of each project as a foreign key.
-    TODO: Information about the .blend file goes where?  Filetype? Blender version (max/min?) 
   Unimplemented:
+    Blender file table will have a list of all the Blender files - one per project.  Maybe this should go in the wishes table? 
+      Frame filetype as foreign key to frame filetype table
+      Blender version (max/min?) 
+      URL or file location?
     Clients table will have list of clients (by IP initially, I guess? Maybe IPv6 in the same table or a different one?)
       ID as primary key
       IP address (text field?)
@@ -80,7 +83,7 @@ Database structure:
       1|complete
     Frames table will have list of frames in all projects!
       Frame ID as primary key
-      wish ID as foreign key (note: this should contains the filetype unless there's some reason to have different filetypes in one project)
+      wish ID as foreign key 
       client ID as foreign key: must be NULL if not taken yet, must match some client ID if running or complete
       frame status ID as foreign key
       filetype ID as foreign key. Can't be NULL
@@ -88,3 +91,4 @@ Database structure:
       upload duration as some kind of time field: must be NULL if not complete
       filesize: must be NULL if not complete (is this useful? maybe easier to get from filesystem.)
       URL or file location?
+    Do we need an interface database with stuff like the next frame? Probably not: do it on the fly with queries.
