@@ -57,3 +57,33 @@ Server:
     Else if all are done:
       Mark project as done
       stop serving .blend file
+
+Database structure:
+  status table describes the status that a project is in:
+    0|stopped
+    1|running
+    2|complete
+  wishes table has a list of the project names, with the status of each project as a foreign key.
+  Unimplemented:
+    Clients table will have list of clients (by IP initially, I guess? Maybe IPv6 in the same table or a different one?)
+      ID as primary key
+      IP address (text field?)
+      client status as foreign key?
+      slow flag (boolean)?
+      blacklist flag (boolean)?
+    Frame filetype table:
+      Should contain all possible blender frame filetypes.
+    Frame status table:
+      0|not yet done
+      1|running
+      1|complete
+    Frames table will have list of frames in all projects!
+      Frame ID as primary key
+      wish ID as foreign key (note: this should contains the filetype unless there's some reason to have different filetypes in one project)
+      client ID as foreign key: must be NULL if not taken yet, must match some client ID if running or complete
+      frame status ID as foreign key
+      filetype ID as foreign key. Can't be NULL
+      render duration as some kind of time field: must be NULL if not complete
+      upload duration as some kind of time field: must be NULL if not complete
+      filesize: must be NULL if not complete (is this useful? maybe easier to get from filesystem.)
+      URL or file location?
