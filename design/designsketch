@@ -64,6 +64,7 @@ Database structure:
     1|running
     2|complete
   wishes table has a list of the project names, with the status of each project as a foreign key.
+    TODO: Information about the .blend file goes where?  Filetype? Blender version (max/min?) 
   Unimplemented:
     Clients table will have list of clients (by IP initially, I guess? Maybe IPv6 in the same table or a different one?)
       ID as primary key
