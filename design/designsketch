@@ -68,6 +68,7 @@ Database structure:
     Blender file table will have a list of all the Blender files - one per project.  Maybe this should go in the wishes table? 
       Frame filetype as foreign key to frame filetype table
       Blender version (max/min?) 
+      Render engine (cycles/internal/any other?)
       URL or file location?
     Clients table will have list of clients (by IP initially, I guess? Maybe IPv6 in the same table or a different one?)
       ID as primary key
