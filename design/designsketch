@@ -60,16 +60,28 @@ Server:
 
 Database structure:
   status table describes the status that a project is in:
-    0|stopped
-    1|running
-    2|complete
-  wishes table has a list of the project names, with the status of each project as a foreign key.
-  Unimplemented:
-    Blender file table will have a list of all the Blender files - one per project.  Maybe this should go in the wishes table? 
-      Frame filetype as foreign key to frame filetype table
-      Blender version (max/min?) 
-      Render engine (cycles/internal/any other?)
+    1|stopped
+    2|running
+    3|complete
+  engine table lists possible render engines
+    1|Internal
+    2|cycles
+  frame type table lists possible frame types.  So far just a few for testing.
+    1|png |Portable Network Graphics
+    2|jpg|JPEG
+    3|exr|OpenEXR
+  wishes table has
+    project name
+    Blender major version (int)
+    Blender minor version (int)
+    Blender version suffix (character field)
+    status of project as a foreign key to status table
+    Frame filetype as foreign key to frame filetype table
+    Render engine as a foreign key to render engine table
+    Unimplemented:
+      Blender version max/min? 
       URL or file location?
+  Unimplemented:
     Clients table will have list of clients (by IP initially, I guess? Maybe IPv6 in the same table or a different one?)
       ID as primary key
       IP address (text field?)
