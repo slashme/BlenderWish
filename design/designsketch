@@ -79,9 +79,10 @@ Database structure:
     Frame filetype table:
       Should contain all possible blender frame filetypes.
     Frame status table:
-      0|not yet done
-      1|running
-      1|complete
+      0|empty
+      1|draft (a low-quality frame uploaded for reference to reject invalid uploads)
+      2|running
+      3|complete
     Frames table will have list of frames in all projects!
       Frame ID as primary key
       wish ID as foreign key 
@@ -90,6 +91,6 @@ Database structure:
       filetype ID as foreign key. Can't be NULL
       render duration as some kind of time field: must be NULL if not complete
       upload duration as some kind of time field: must be NULL if not complete
-      filesize: must be NULL if not complete (is this useful? maybe easier to get from filesystem.)
+      filesize (is this useful? maybe easier to get from filesystem.)
       URL or file location?
     Do we need an interface database with stuff like the next frame? Probably not: do it on the fly with queries.
