@@ -1,14 +1,8 @@
 BlenderWish
 
 Server:
-  Project contains:
-    Name
-    .blend file 
-    range (list?) of frames to render
-    List of frames in progress, with clients identified
-    List of blacklisted clients
-    Rendered frames
-  Server provides:
+  Maintains and presents list of projects.
+  Provides to client on request (for specified project):
     .blend file
     Next frame to render
     Rendered frames
@@ -17,7 +11,7 @@ Server:
     Client accepts job
         If existing client:
           If client is marked as busy with a frame:
-            If repeat offender: #define threshold offense count
+            If repeat offender: #depending on threshold offense count
               blacklist
             Else:
               Increment client's offense count
@@ -28,7 +22,7 @@ Server:
             If frame is still available:
               Server confirms acceptance and marks frame as in progress
               If this was the published latest frame:
-                Server updates frame number - GetNewFrame
+                Server updates frame number - execute GetNewFrame
             Else: #Frame is not available
               Server provides a new frame number
                 Client confirms job acceptance
@@ -40,7 +34,6 @@ Server:
           Server confirms acceptance and marks frame as in progress
     Client completes job
     Client uploads rendered frame (how?)
-    (option to do sense check with low-quality render? This would prevent disruption and subversion of project for image hosting)
     Server marks frame as complete
     Server adds frame to list of downloadable frames
     Server records render time for client profiling purposes
@@ -51,25 +44,29 @@ Server:
     Else if all are in progress:
       Server determines threshold processing time (one standard distribution above the mean?)
       Server selects in progress job with longest processing time
-      Server publishes this job as latest frame number
       If processing time above threshold:
+        Server publishes this job as latest frame number
         Server marks client as "slow" (maybe blacklist? Maybe this client had difficult frames to render?)
     Else if all are done:
       Mark project as done
       stop serving .blend file
 
 Database structure:
+
   status table describes the status that a project is in:
     1|stopped
     2|running
     3|complete
+
   engine table lists possible render engines
-    1|Internal
+    1|internal
     2|cycles
+
   frame type table lists possible frame types.  So far just a few for testing.
     1|png |Portable Network Graphics
     2|jpg|JPEG
     3|exr|OpenEXR
+
   wishes table has
     project name
     Blender major version (int)
@@ -81,28 +78,34 @@ Database structure:
     Unimplemented:
       Blender version max/min? 
       URL or file location?
-  Unimplemented:
-    Clients table will have list of clients (by IP initially, I guess? Maybe IPv6 in the same table or a different one?)
-      ID as primary key - don't use IP address as primary key; might not be constant if we use other ID methods.
-      IP address (int) - use iptools; use ipv4.ip2long, if NONE use ipv6.ip2long; if NONE raise error. Store only most recent IP? Maybe many:many relationship allowed?
-      client status as foreign key?
+
+  Clients table has list of clients (by IP initially? Maybe IPv6 in the same table or a different one?)
+    ID as primary key
+      don't use IP address as primary key; might not be constant if we use other ID methods.
+    IP address (int)
+      Store only most recent IP?
+      Maybe many:many relationship allowed?
+      use iptools
+        use ipv4.ip2long, if NONE use ipv6.ip2long; if NONE raise error.
+    client status as foreign key
+    Unimplemented:
       slow flag (boolean)?
       blacklist flag (boolean)?
-    Frame filetype table:
-      Should contain all possible blender frame filetypes.
-    Frame status table:
-      0|empty
-      1|draft (a low-quality frame uploaded for reference to reject invalid uploads)
-      2|running
-      3|complete
-    Frames table will have list of frames in all projects!
-      Frame ID as primary key
-      wish ID as foreign key 
-      client ID as foreign key: must be NULL if not taken yet, must match some client ID if running or complete
-      frame status ID as foreign key
-      filetype ID as foreign key. Can't be NULL
-      render duration as some kind of time field: must be NULL if not complete
-      upload duration as some kind of time field: must be NULL if not complete
-      filesize (is this useful? maybe easier to get from filesystem.)
-      URL or file location?
+
+  Frame status table:
+    0|empty
+    1|draft (a low-quality frame uploaded for reference to reject invalid uploads)
+    2|running
+    3|done
+
+  Frames table: list of frames in all projects!
+    Frame ID as primary key
+    frame status ID as foreign key
+    wish ID as foreign key 
+    client ID as foreign key: must be NULL if not taken yet, must match some client ID if running or complete
+    filename (local path to file - server code will format as URL.)
+    upload start and end time and render start and end time as YYYY-MM-DD HH:MM:SS.SSSZ
+      end times must be NULL if not complete
+      Don't need filetype ID: that's already in the wishes table.
+
     Do we need an interface database with stuff like the next frame? Probably not: do it on the fly with queries.
