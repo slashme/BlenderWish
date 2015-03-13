@@ -83,8 +83,8 @@ Database structure:
       URL or file location?
   Unimplemented:
     Clients table will have list of clients (by IP initially, I guess? Maybe IPv6 in the same table or a different one?)
-      ID as primary key
-      IP address (text field?)
+      ID as primary key - don't use IP address as primary key; might not be constant if we use other ID methods.
+      IP address (int) - use iptools; use ipv4.ip2long, if NONE use ipv6.ip2long; if NONE raise error. Store only most recent IP? Maybe many:many relationship allowed?
       client status as foreign key?
       slow flag (boolean)?
       blacklist flag (boolean)?
