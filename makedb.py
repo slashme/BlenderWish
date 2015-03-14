@@ -36,8 +36,10 @@ CREATE TABLE frames (
   frameid INTEGER PRIMARY KEY,
   status INTEGER NOT NULL,
   wishid INTEGER NOT NULL,
+  framenumber INTEGER,
   clientid INTEGER,
-  filename TEXT
+  draftfilename TEXT,
+  filename TEXT,
   renderstart TEXT,
   renderend TEXT,
   uploadstart TEXT,

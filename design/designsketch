@@ -102,8 +102,10 @@ Database structure:
     Frame ID as primary key
     frame status ID as foreign key
     wish ID as foreign key 
+    frame number as integer
     client ID as foreign key: must be NULL if not taken yet, must match some client ID if running or complete
     filename (local path to file - server code will format as URL.)
+    draft filename supplied with project
     upload start and end time and render start and end time as YYYY-MM-DD HH:MM:SS.SSSZ
       end times must be NULL if not complete
       Don't need filetype ID: that's already in the wishes table.
