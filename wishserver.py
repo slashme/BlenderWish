@@ -42,24 +42,27 @@ def showproj(wishid):
     WHERE wishes.wishid = ?
   ''', (wishid,))
   result = c.fetchall()
-  result = [(u'Project name', u'Status', u'Frame type', u'Engine')] + result
-  c.close()
-  output = template('make_table', rows=result)
+  if len(result)==0:
+    output = template('not_found', message='Project %s not found'%wishid)
+  else:
+    result = [(u'Project name', u'Status', u'Frame type', u'Engine')] + result
+    c.close()
+    output = template('make_table', rows=result)
   return output
   
 
-@app.route('/wish/<wishid:int>') #Try a number, if it fails try a name, else give a 404.
+@app.route('/wish/<wishid:int>') #Return the project by number - showproj will redirect if not valid ID.
 def showprojbynum(wishid):
   return showproj(wishid)
 
-@app.route('/wish/<wishname>') #Try a number, if it fails try a name, else give a 404.
+@app.route('/wish/<wishname>') #If valid project name, find the number and run showproj, else redirect.
 def showprojbyname(wishname):
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
   c.execute("SELECT wishid FROM wishes WHERE name = ?", (wishname,))
   data=c.fetchall()
   if len(data)==0:
-    return('Project %s not found'%wishname)
+    return template('not_found', message='Project %s not found'%wishname)
   else:
     return showproj(data[0][0])
 
