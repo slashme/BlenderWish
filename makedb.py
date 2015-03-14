@@ -89,6 +89,7 @@ con.execute("INSERT INTO projectstatus (name) VALUES ('complete')")
 con.execute("INSERT INTO frametypes (ext, name) VALUES ('png','Portable Network Graphics')")
 con.execute("INSERT INTO frametypes (ext, name) VALUES ('jpg','JPEG')")
 con.execute("INSERT INTO frametypes (ext, name) VALUES ('exr','OpenEXR')")
-#For testing purposes, create a dummy project.
+#For testing purposes, create dummy projects.
 con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish1', '2', '73', 1, 1, 1)") 
+con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish2', '2', '73', 2, 2, 2)") 
 con.commit()

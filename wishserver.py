@@ -20,6 +20,7 @@ def list():
     LEFT JOIN engines ON wishes.engine = engines.engineid
   ''')
   result = c.fetchall()
+  result = [(u'Project name', u'Status', u'Frame type', u'Engine')] + result
   c.close()
   output = template('make_table', rows=result)
   return output
