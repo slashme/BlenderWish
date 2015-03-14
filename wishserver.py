@@ -47,7 +47,7 @@ def showproj(wishid):
   else:
     result = [(u'Project name', u'Status', u'Frame type', u'Engine')] + result
     c.close()
-    output = template('make_table', rows=result)
+    output = template('proj_detail', rows=result)
   return output
   
 
@@ -60,11 +60,11 @@ def showprojbyname(wishname):
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
   c.execute("SELECT wishid FROM wishes WHERE name = ?", (wishname,))
-  data=c.fetchall()
-  if len(data)==0:
+  result=c.fetchall()
+  if len(result)==0:
     return template('not_found', message='Project %s not found'%wishname)
   else:
-    return showproj(data[0][0])
+    return showproj(result[0][0])
 
 debug(True)
 run(app, host='localhost', port=8080, reloader=True)
