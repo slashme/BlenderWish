@@ -21,19 +21,20 @@ def showproj(wishid):
   ''', (wishid,))
   result = c.fetchall()
   if len(result)==0:
-    output = template('not_found', message='Project %s not found'%wishid)
+    output = template('not_found', message='Project %s not found'%wishid, title='Unwished')
   else:
     result = [(u'Project name', u'Status', u'Frame type', u'Engine')] + result
     c.close()
-    output = template('proj_detail', rows=result)
+    output = template('proj_detail', rows=result, title='Project %s'%result[1][0])
   return output
   
-@app.route('/list') 
+@app.route('/list') #List projects
 def list():
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
   c.execute('''
   SELECT
+    wishes.wishid AS wish_id, 
     wishes.name AS wish_name, 
     projectstatus.name AS status_name,
     frametypes.name AS frametype_name,
@@ -45,9 +46,9 @@ def list():
     LEFT JOIN engines ON wishes.engine = engines.engineid
   ''')
   result = c.fetchall()
-  result = [(u'Project name', u'Status', u'Frame type', u'Engine')] + result
+  result = [(u'', u'Project name', u'Status', u'Frame type', u'Engine')] + result
   c.close()
-  output = template('make_table', rows=result)
+  output = template('make_table', rows=result, title="Wish list")
   return output
 
 @app.get('/makewish') #Create a new project: get action
@@ -60,7 +61,7 @@ def makewish():
   c.execute("SELECT engineid, name FROM engines")
   enginelist = c.fetchall()
   c.close()
-  wishform = template('wish_form', enginelist=enginelist, frametypelist=frametypelist) #Generate a form with pre-populated option lists.
+  wishform = template('wish_form', enginelist=enginelist, frametypelist=frametypelist, title="Make a Blender wish") #Generate a form with pre-populated option lists.
   return wishform
 
 @app.post('/makewish') #Create a new project: post action
@@ -96,7 +97,7 @@ def showprojbyname(wishname):
   c.execute("SELECT wishid FROM wishes WHERE name = ?", (wishname,))
   result=c.fetchall()
   if len(result)==0:
-    return template('not_found', message='Project %s not found'%wishname)
+    return template('not_found', message='Project %s not found'%wishname, title="Unwished")
   else:
     return showproj(result[0][0])
 
