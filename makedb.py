@@ -70,8 +70,8 @@ CREATE TABLE wishes (
   FOREIGN KEY(engine) REFERENCES engines(engineid))
 ''')
 #Populate engines table
-con.execute("INSERT INTO engines (name) VALUES ('internal')")
 con.execute("INSERT INTO engines (name) VALUES ('cycles')")
+con.execute("INSERT INTO engines (name) VALUES ('internal')")
 #Populate client status table
 con.execute("INSERT INTO clientstatus (name) VALUES ('new')")
 con.execute("INSERT INTO clientstatus (name) VALUES ('good')")

@@ -67,14 +67,14 @@ def makewish():
 
 @app.post('/makewish') #Create a new project: post action
 def do_makewish():
-  pn=request.forms.get('wish_name')
-  ft=request.forms.get('ft')
-  en=request.forms.get('en')
-  maj_ver=request.forms.get('maj_ver')
-  min_ver=request.forms.get('min_ver')
-  ver_suf=request.forms.get('ver_suf')
-  fr1=request.forms.get('fr1')
-  frn=request.forms.get('frn')
+  pn=request.forms.getunicode('wish_name')
+  ft=request.forms.getunicode('ft')
+  en=request.forms.getunicode('en')
+  maj_ver=request.forms.getunicode('maj_ver')
+  min_ver=request.forms.getunicode('min_ver')
+  ver_suf=request.forms.getunicode('ver_suf')
+  fr1=request.forms.getunicode('fr1')
+  frn=request.forms.getunicode('frn')
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
   c.execute('''
