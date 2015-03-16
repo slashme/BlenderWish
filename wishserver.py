@@ -8,6 +8,7 @@ def showproj(wishid):
   c = conn.cursor()
   c.execute('''
   SELECT
+    wishes.wishid AS wish_id, 
     wishes.name AS wish_name, 
     projectstatus.name AS status_name,
     frametypes.name AS frametype_name,
@@ -23,9 +24,9 @@ def showproj(wishid):
   if len(result)==0:
     output = template('not_found', message='Project %s not found'%wishid, title='Unwished')
   else:
-    result = [(u'Project name', u'Status', u'Frame type', u'Engine')] + result
+    result = [(u'', u'Project name', u'Status', u'Frame type', u'Engine')] + result
     c.close()
-    output = template('proj_detail', rows=result, title='Project %s'%result[1][0])
+    output = template('make_table', rows=result, title='Project %s'%result[1][0])
   return output
   
 @app.route('/list') #List projects

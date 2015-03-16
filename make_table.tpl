@@ -1,6 +1,6 @@
 %rebase layout title=title
 %#template to display list of projects in an HTML table.
-<p>List of projects:</p>
+<p>{{title}}</p>
 <table border="1">
 %i=0 #i is 0 for the title row
 %for row in rows:
