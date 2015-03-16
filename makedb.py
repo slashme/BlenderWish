@@ -86,7 +86,7 @@ con.execute("INSERT INTO projectstatus (name) VALUES ('stopped')")
 con.execute("INSERT INTO projectstatus (name) VALUES ('running')")
 con.execute("INSERT INTO projectstatus (name) VALUES ('complete')")
 #Populate frametypes table - just some basic values; fix later.
-con.execute("INSERT INTO frametypes (ext, name) VALUES ('png','Portable Network Graphics')")
+con.execute("INSERT INTO frametypes (ext, name) VALUES ('png','PNG')")
 con.execute("INSERT INTO frametypes (ext, name) VALUES ('jpg','JPEG')")
 con.execute("INSERT INTO frametypes (ext, name) VALUES ('exr','OpenEXR')")
 #For testing purposes, create dummy projects.
