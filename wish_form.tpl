@@ -1,4 +1,4 @@
-%rebase layout title=title
+%rebase('layout.tpl', title=title)
 %#template to generate an HTML table from a list of tuples (or list of lists, or tuple of tuples or ...)
 <h1>Make a Blender Wish</h1>
 <form action="/makewish" method="post">

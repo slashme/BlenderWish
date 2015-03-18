@@ -1,4 +1,4 @@
-%rebase layout title=title
+%rebase('layout.tpl', title=title)
 %#template to display list of projects in an HTML table.
 <h1>{{title}}</h1>
 <table border="1">
