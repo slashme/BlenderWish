@@ -1,5 +1,5 @@
 import sqlite3
-from bottle import Bottle, route, get, post, request, run, template, debug
+from bottle import Bottle, route, get, post, request, run, template, debug, error
 
 app = Bottle()
 
@@ -37,17 +37,13 @@ def list():
   SELECT
     wishes.wishid AS wish_id, 
     wishes.name AS wish_name, 
-    projectstatus.name AS status_name,
-    frametypes.name AS frametype_name,
-    engines.name AS engine_name
+    projectstatus.name AS status_name
   FROM 
     wishes 
     LEFT JOIN projectstatus ON wishes.status = projectstatus.statusid
-    LEFT JOIN frametypes ON wishes.frametype = frametypes.frametypeid
-    LEFT JOIN engines ON wishes.engine = engines.engineid
   ''')
   result = c.fetchall()
-  result = [(u'', u'Project name', u'Status', u'Frame type', u'Engine')] + result
+  result = [(u'', u'Project name', u'Status')] + result
   c.close()
   output = template('make_table', rows=result, title="Wish list")
   return output
@@ -101,6 +97,10 @@ def showprojbyname(wishname):
     return template('not_found', message='Project %s not found'%wishname, title="Unwished")
   else:
     return showproj(result[0][0])
+
+@app.error(404)
+def error404(error):
+    return list()
 
 debug(True)
 run(app, host='localhost', port=8080, reloader=True)

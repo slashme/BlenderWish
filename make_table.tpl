@@ -1,6 +1,6 @@
 %rebase layout title=title
 %#template to display list of projects in an HTML table.
-<p>{{title}}</p>
+<h1>{{title}}</h1>
 <table border="1">
 %i=0 #i is 0 for the title row
 %for row in rows:
@@ -14,10 +14,10 @@
         <th>{{col}}</th>
       %end #if j==0:
     %elif j==0:
-      <td><a href="/wish/{{col}}">
+      <td><a href="/wish/{{col}}">\\
       %j+=1
     %elif j==1:
-      {{col}}</a></td>
+{{col}}</a></td>
       %j+=1
     %else:
       <td>{{col}}</td>
