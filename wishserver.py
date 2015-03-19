@@ -1,4 +1,4 @@
-import sqlite3, os, errno
+import sqlite3, os, errno, datetime
 from bottle import Bottle, route, get, post, request, run, template, debug, error
 
 app = Bottle()
@@ -48,7 +48,6 @@ def list():
   output = template('make_table', rows=result, title="Wish list")
   return output
 
-#In progress: start
 @app.get('/wish/<wishid:int>/projupload') #Upload a blender project file
 def projupload(wishid):
   #Check if the wish ID is valid
@@ -83,21 +82,34 @@ def do_projupload(wishid):
     if exc.errno != errno.EEXIST:
       raise #Do I need to handle this more gracefully?
   upload.save(destination=projpath + str(wishid) + ".blend", overwrite=True) #Maybe warn?
+  #TODO: check file type: if not Blender file, kill it with fire.
+  savetime=datetime.datetime.utcnow()
   #Now update the database:
-  #Find out whether the file already is listed. If so, just update the upload time and filename.
-  #If the file is not listed, insert into blendfiles table.
-#  conn = sqlite3.connect('wishes.db')
-#  c = conn.cursor()
-#  c.execute('''
-#  INSERT INTO wishes(name, majorversion, minorversion, versionsuffix, status, frametype, firstframe, lastframe, engine)
-#  VALUES 
-#    (?, ?, ?, ?, ?, ?, ?, ?, ?)
-#  ''', (pn, maj_ver, min_ver, ver_suf, 1, ft, fr1, frn, en))
-#  new_wish_id = c.lastrowid
-#  conn.commit()
-#  c.close()
+  #Find out whether the file already is listed.
+  conn = sqlite3.connect('wishes.db')
+  c = conn.cursor()
+  c.execute("SELECT blendfileid FROM blendfiles WHERE wishid = ?", (wishid,))
+  blendfileidlist = c.fetchall()
+  c.close()
+  #If file is listed, just update the upload time
+  if len(blendfileidlist)==1:
+    conn = sqlite3.connect('wishes.db')
+    c = conn.cursor()
+    c.execute("UPDATE blendfiles SET uploadtime= ? WHERE wishid = ?", (savetime.isoformat(' '), wishid))
+    conn.commit()
+    c.close()
+  else:
+    #If the file is not listed, insert into blendfiles table.
+    conn = sqlite3.connect('wishes.db')
+    c = conn.cursor()
+    c.execute('''
+    INSERT INTO blendfiles(wishid, filename, uploadtime)
+    VALUES 
+      (?, ?, ?)
+    ''', (wishid, str(wishid) + ".blend", savetime.isoformat(' ')))
+    conn.commit()
+    c.close()
   return list() #Just return something for now...
-#In progress: end
 
 @app.get('/makewish') #Create a new project: get action
 def makewish():
