@@ -79,6 +79,11 @@ Database structure:
       Blender version max/min? 
       URL or file location?
 
+  blendfiles table has
+    filename (text field)
+    upload time as YYYY-MM-DD HH:MM:SS.SSSZ
+    wishid as a foreign key to wishes table
+
   Clients table has list of clients (by IP initially? Maybe IPv6 in the same table or a different one?)
     ID as primary key
       don't use IP address as primary key; might not be constant if we use other ID methods.

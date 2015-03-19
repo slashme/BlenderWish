@@ -1,6 +1,6 @@
 %rebase('layout.tpl', title=title)
 %#template to generate an HTML table from a list of tuples (or list of lists, or tuple of tuples or ...)
-<h1>Make a Blender Wish</h1>
+<h1>{{title}}</h1>
 <form action="/makewish" method="post">
   Project name:           <input name="wish_name" type="text" /><br>
   Render engine:          <select name="en">

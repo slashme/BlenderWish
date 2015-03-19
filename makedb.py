@@ -32,6 +32,14 @@ CREATE TABLE frametypes (
   name TEXT NOT NULL)
 ''')
 con.execute('''
+CREATE TABLE blendfiles (
+  blendfileid INTEGER PRIMARY KEY,
+  wishid INTEGER NOT NULL,
+  filename TEXT,
+  uploadtime TEXT,
+  FOREIGN KEY(wishid) REFERENCES wishes(wishid))
+''')
+con.execute('''
 CREATE TABLE frames (
   frameid INTEGER PRIMARY KEY,
   status INTEGER NOT NULL,
