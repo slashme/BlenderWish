@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, os, errno
 from bottle import Bottle, route, get, post, request, run, template, debug, error
 
 app = Bottle()
@@ -50,7 +50,7 @@ def list():
 
 #In progress: start
 @app.get('/wish/<wishid:int>/projupload') #Upload a blender project file
-def projupload():
+def projupload(wishid):
   #Check if the wish ID is valid
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
@@ -66,22 +66,23 @@ def projupload():
   if len(uploadtimelist)==1:
     titletext = "Upload over blend file uploaded on " + uploadtimelist[0][0] + " for project " + wishidlist[0][1]
   else:
-    titletext = "Upload blend file for project" + uploadtimelist[0][0] + " for project " + wishidlist[0][1]
-  uploadaction="/wish/" + wishid + "/projupload" #set form action variable
+    #return template('not_found', message=str(wishidlist), title="Debugging") #Debug: testing
+    titletext = "Upload blend file for project" + " for project " + wishidlist[0][1]
+  uploadaction="/wish/" + str(wishid) + "/projupload" #set form action variable
   wishform = template('single_upload', uploadaction=uploadaction, title=titletext) #Generate a file upload form
   return wishform
 
 @app.post('/wish/<wishid:int>/projupload') #Upload a blender project file : post action
-def do_projupload():
-  upload=request.forms.get('upload')
+def do_projupload(wishid):
+  upload=request.files.get('upload')
   #If we don't yet have a directory for the project, create it:
-  projpath = os.path.dirname(__file__) + wishid + "/"
+  projpath = os.path.dirname(__file__) + str(wishid) + "/"
   try:
-    os.makedir(projpath)
+    os.mkdir(projpath)
   except OSError as exc:
     if exc.errno != errno.EEXIST:
       raise #Do I need to handle this more gracefully?
-  upload.save(destination=projpath+wishid+".blend", overwrite=True) #Maybe warn?
+  upload.save(destination=projpath + str(wishid) + ".blend", overwrite=True) #Maybe warn?
   #Now update the database:
   #Find out whether the file already is listed. If so, just update the upload time and filename.
   #If the file is not listed, insert into blendfiles table.
