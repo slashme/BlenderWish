@@ -28,7 +28,7 @@ def showproj(wishid):
     output = template('not_found', message='Project %s not found'%wishid, title='Unwished')
   else:
     showprojtable = [['Project name', 'Status', 'Frame type', 'Engine', 'Blender file uploaded']]
-    showprojtable += [[result[0][1],result[0][2],result[0][3],result[0][4],['/wish/'+str(result[0][0])+'/projupload',result[0][5]]]]
+    showprojtable += [[result[0][1],result[0][2],result[0][3],result[0][4],['/wish/'+str(result[0][0])+'/projupload',result[0][5].split('.')[0]]]]
     output = template('make_table', rows=showprojtable, title='Project %s'%result[0][0])
   return output
   
