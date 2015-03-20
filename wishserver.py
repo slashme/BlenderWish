@@ -12,21 +12,24 @@ def showproj(wishid):
     wishes.name AS wish_name, 
     projectstatus.name AS status_name,
     frametypes.name AS frametype_name,
-    engines.name AS engine_name
+    engines.name AS engine_name,
+    blendfiles.uploadtime
   FROM 
     wishes
     LEFT JOIN projectstatus ON wishes.status = projectstatus.statusid
     LEFT JOIN frametypes ON wishes.frametype = frametypes.frametypeid
     LEFT JOIN engines ON wishes.engine = engines.engineid
+    LEFT JOIN blendfiles ON wish_id = blendfiles.wishid
     WHERE wishes.wishid = ?
   ''', (wishid,))
   result = c.fetchall()
+  c.close()
   if len(result)==0:
     output = template('not_found', message='Project %s not found'%wishid, title='Unwished')
   else:
-    result = [(u'', u'Project name', u'Status', u'Frame type', u'Engine')] + result
-    c.close()
-    output = template('make_table', rows=result, title='Project %s'%result[1][0])
+    showprojtable = [['Project name', 'Status', 'Frame type', 'Engine', 'Blender file uploaded']]
+    showprojtable += [[result[0][1],result[0][2],result[0][3],result[0][4],['/wish/'+str(result[0][0])+'/projupload',result[0][5]]]]
+    output = template('make_table', rows=showprojtable, title='Project %s'%result[0][0])
   return output
   
 @app.route('/list') #List projects
@@ -43,9 +46,11 @@ def list():
     LEFT JOIN projectstatus ON wishes.status = projectstatus.statusid
   ''')
   result = c.fetchall()
-  result = [(u'', u'Project name', u'Status')] + result
   c.close()
-  output = template('make_table', rows=result, title="Wish list")
+  showprojtable = [['Project name', 'Status']]
+  for row in result:
+    showprojtable += [[['/wish/'+str(row[0]),row[1]],row[2]]]
+  output = template('make_table', rows=showprojtable, title="Wish list")
   return output
 
 @app.get('/wish/<wishid:int>/projupload') #Upload a blender project file
