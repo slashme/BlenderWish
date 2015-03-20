@@ -53,6 +53,62 @@ def list():
   output = template('make_table', rows=showprojtable, title="Wish list")
   return output
 
+@app.get('/wish/<wishid:int>/tnupload') #Upload a blender project file
+def tnupload(wishid):
+  #Check if the wish ID is valid
+  conn = sqlite3.connect('wishes.db')
+  c = conn.cursor()
+  c.execute("SELECT wishid, name FROM wishes WHERE wishid = ?", (wishid,))
+  wishidlist = c.fetchall() #This should have length 1
+  if len(wishidlist)==0:
+    return template('not_found', message='Project %s not found'%wishid, title="Unwished")
+  #TODO: Check whether we have thumbnails already, warn if so.
+  else:
+    titletext = "Upload thumbnails for project" + wishidlist[0][1]
+  uploadaction="/wish/" + str(wishid) + "/projupload" #set form action variable
+  wishform = template('single_upload', uploadaction=uploadaction, title=titletext) #Generate a file upload form
+  return wishform
+
+@app.post('/wish/<wishid:int>/projupload') #Upload a blender project file : post action
+def do_projupload(wishid):
+  upload=request.files.get('upload')
+  #If we don't yet have a directory for the project, create it:
+  projpath = os.path.dirname(__file__) + str(wishid) + "/"
+  try:
+    os.mkdir(projpath)
+  except OSError as exc:
+    if exc.errno != errno.EEXIST:
+      raise #Do I need to handle this more gracefully?
+  upload.save(destination=projpath + str(wishid) + ".blend", overwrite=True) #Maybe warn?
+  #TODO: check file type: if not Blender file, kill it with fire.
+  savetime=datetime.datetime.utcnow()
+  #Now update the database:
+  #Find out whether the file already is listed.
+  conn = sqlite3.connect('wishes.db')
+  c = conn.cursor()
+  c.execute("SELECT blendfileid FROM blendfiles WHERE wishid = ?", (wishid,))
+  blendfileidlist = c.fetchall()
+  c.close()
+  #If file is listed, just update the upload time
+  if len(blendfileidlist)==1:
+    conn = sqlite3.connect('wishes.db')
+    c = conn.cursor()
+    c.execute("UPDATE blendfiles SET uploadtime= ? WHERE wishid = ?", (savetime.isoformat(' '), wishid))
+    conn.commit()
+    c.close()
+  else:
+    #If the file is not listed, insert into blendfiles table.
+    conn = sqlite3.connect('wishes.db')
+    c = conn.cursor()
+    c.execute('''
+    INSERT INTO blendfiles(wishid, filename, uploadtime)
+    VALUES 
+      (?, ?, ?)
+    ''', (wishid, str(wishid) + ".blend", savetime.isoformat(' ')))
+    conn.commit()
+    c.close()
+  return list() #Just return something for now...
+
 @app.get('/wish/<wishid:int>/projupload') #Upload a blender project file
 def projupload(wishid):
   #Check if the wish ID is valid
