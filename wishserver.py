@@ -71,7 +71,7 @@ def projupload(wishid):
     titletext = "Upload over blend file uploaded on " + uploadtimelist[0][0] + " for project " + wishidlist[0][1]
   else:
     #return template('not_found', message=str(wishidlist), title="Debugging") #Debug: testing
-    titletext = "Upload blend file for project" + " for project " + wishidlist[0][1]
+    titletext = "Upload blend file for project " + wishidlist[0][1]
   uploadaction="/wish/" + str(wishid) + "/projupload" #set form action variable
   wishform = template('single_upload', uploadaction=uploadaction, title=titletext) #Generate a file upload form
   return wishform
