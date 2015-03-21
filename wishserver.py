@@ -11,7 +11,6 @@ def showproj(wishid):
   c = conn.cursor()
   c.execute('''
   SELECT
-    wishes.wishid AS wish_id, 
     wishes.name AS wish_name, 
     projectstatus.name AS status_name,
     frametypes.name AS frametype_name,
@@ -22,17 +21,28 @@ def showproj(wishid):
     LEFT JOIN projectstatus ON wishes.status = projectstatus.statusid
     LEFT JOIN frametypes ON wishes.frametype = frametypes.frametypeid
     LEFT JOIN engines ON wishes.engine = engines.engineid
-    LEFT JOIN blendfiles ON wish_id = blendfiles.wishid
+    LEFT JOIN blendfiles ON wishes.wishid = blendfiles.wishid
     WHERE wishes.wishid = ?
   ''', (wishid,))
   result = c.fetchall()
   c.close()
   if len(result)==0:
     output = template('not_found', message='Project %s not found'%wishid, title='Unwished')
-  else:
-    showprojtable = [['Project name', 'Status', 'Frame type', 'Engine', 'Blender file uploaded']]
-    showprojtable += [[result[0][1],result[0][2],result[0][3],result[0][4],['/wish/'+str(result[0][0])+'/projupload',str(result[0][5]).split('.')[0]]]]
-    output = template('make_table', rows=showprojtable, title='Project %s'%result[0][0])
+    return output
+  result=result[0] #Only one row, so reduce the typing...
+  wish_id=str(wishid)
+  wish_name=result[0]
+  status_name=result[1]
+  frametype_name=result[2]
+  engine_name=result[3]
+  try:
+    uploadtime="Uploaded at " + result[4].split('.')[0] #If this is a timestamp, remove the fractions of seconds
+  except AttributeError:
+    uploadtime="" #Else there is no upload time.
+  showprojtable = [[]] #Hack: Include an empty row so that there will be no table header
+  showprojtable += [['Wish name:',wish_name],['Status:',status_name],['Frame type',frametype_name],['Engine:',engine_name],['Blend file:',['/projects/'+wish_id+'/'+wish_id+'.blend',wish_id+'.blend']],['','Uploaded at '+uploadtime]]
+  #showprojtable += [[result[1],result[2],result[3],result[4],['/wish/'+str(result[0])+'/projupload',str(result[5]).split('.')[0]]]]
+  output = template('make_table', rows=showprojtable, title='Project %s'%result[0])
   return output
   
 @app.route('/list') #List projects
