@@ -1,7 +1,10 @@
-import sqlite3, os, errno, datetime
+import sqlite3, os, errno, datetime, re
 from bottle import Bottle, route, get, post, request, run, template, debug, error
 
 app = Bottle()
+
+#Define regular expressions
+hasnum = re.compile('\d+') #running hasnum.findall returns a list of all the digit sequences in a string, length 0 if none found.
 
 def showproj(wishid):
   conn = sqlite3.connect('wishes.db')
@@ -52,6 +55,66 @@ def list():
     showprojtable += [[['/wish/'+str(row[0]),row[1]],row[2]]]
   output = template('make_table', rows=showprojtable, title="Wish list")
   return output
+
+@app.get('/wish/<wishid:int>/tnupload') #Upload thumbnails for blender project
+def tnupload(wishid):
+  #Check if the wish ID is valid
+  conn = sqlite3.connect('wishes.db')
+  c = conn.cursor()
+  c.execute("SELECT wishid, name FROM wishes WHERE wishid = ?", (wishid,))
+  wishidlist = c.fetchall() #This should have length 1
+  c.close()
+  if len(wishidlist)==0:
+    return template('not_found', message='Project %s not found'%wishid, title="Unwished")
+  #TODO: Check whether we have thumbnails already, warn if so.
+  else:
+    titletext = "Upload thumbnails for project" + wishidlist[0][1]
+  uploadaction="/wish/" + str(wishid) + "/tnupload" #set form action variable
+  wishform = template('multi_upload', uploadaction=uploadaction, title=titletext, info="Select thumbnails named [frame number].png") #Generate multiple file upload form
+  return wishform
+
+#In progress
+@app.post('/wish/<wishid:int>/tnupload') #Upload a blender project file : post action
+def do_projupload(wishid):
+  #If we don't yet have a directory for the project, create it:
+  projpath = os.path.dirname(__file__) + str(wishid) + "/"
+  try:
+    os.mkdir(projpath)
+  except OSError as exc:
+    if exc.errno != errno.EEXIST:
+      raise #TODO: Do I need to handle this more gracefully?
+  for thumbnail in request.files.getlist('upload[]'): #For each file to be uploaded...
+    tnfilenamelist=hasnum.findall(thumbnail.filename) #List of all numbers in filename
+    if len(tnfilenamelist) == 0: #the filename doesn't contain a number
+      error_text="File name " + thumbnail.filename + " doesn't contain a number"
+      return template('not_found', message=error_text, title="Filename error")
+    tnframenum = int(hasnum.findall(thumbnail.filename)[0]) #First number in filename should be frame number.
+    conn = sqlite3.connect('wishes.db')
+    c = conn.cursor()
+    c.execute('''
+    SELECT frametypes.ext AS frametype_ext FROM 
+    wishes LEFT JOIN frametypes ON wishes.frametype = frametypes.frametypeid
+    WHERE wishes.wishid = ?
+    ''', (wishid,))
+    tnfilenameext = c.fetchall()[0]
+    tnfilename="tn_"+str(wishid)+"_"+str(tnframenum)+"."+tnfilenameext[0]
+    thumbnail.save(destination=projpath + tnfilename, overwrite=True) #TODO: Check for proper filename and extension
+    #Update the frames list: if the frame already exists, the UPDATE command will run,
+    #otherwise the INSERT command will run.
+    c.execute('''
+    UPDATE OR IGNORE frames
+      SET status=2, draftfilename=?
+      WHERE wishid=? AND framenumber=?
+    ''', (tnfilename, wishid, tnframenum))
+    c.execute('''
+    INSERT OR IGNORE INTO frames (status, wishid, framenumber, draftfilename)
+    VALUES (2, ?, ?, ?)
+    ''', (wishid, tnframenum, tnfilename))
+    #Note, we set frame status to "draft".  TODO: How will this work if the current status is "running"?
+    conn.commit()
+    c.close()
+    #TODO: check file type: if not the right image type or dimensions, kill it with fire.
+  return list() #Just return something for now...
 
 @app.get('/wish/<wishid:int>/projupload') #Upload a blender project file
 def projupload(wishid):
