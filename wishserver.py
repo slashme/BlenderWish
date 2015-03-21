@@ -63,6 +63,7 @@ def tnupload(wishid):
   c = conn.cursor()
   c.execute("SELECT wishid, name FROM wishes WHERE wishid = ?", (wishid,))
   wishidlist = c.fetchall() #This should have length 1
+  c.close()
   if len(wishidlist)==0:
     return template('not_found', message='Project %s not found'%wishid, title="Unwished")
   #TODO: Check whether we have thumbnails already, warn if so.
@@ -83,37 +84,36 @@ def do_projupload(wishid):
     if exc.errno != errno.EEXIST:
       raise #TODO: Do I need to handle this more gracefully?
   for thumbnail in request.files.getlist('upload[]'): #For each file to be uploaded...
-    if len(hasnum.findall(thumbnail.filename)) == 0: #the filename doesn't contain a number
+    tnfilenamelist=hasnum.findall(thumbnail.filename) #List of all numbers in filename
+    if len(tnfilenamelist) == 0: #the filename doesn't contain a number
       error_text="File name " + thumbnail.filename + " doesn't contain a number"
       return template('not_found', message=error_text, title="Filename error")
-    thumbnail.save(destination=projpath, overwrite=True) #TODO: Check for proper filename and extension
+    tnframenum = int(hasnum.findall(thumbnail.filename)[0]) #First number in filename should be frame number.
+    conn = sqlite3.connect('wishes.db')
+    c = conn.cursor()
+    c.execute('''
+    SELECT frametypes.ext AS frametype_ext FROM 
+    wishes LEFT JOIN frametypes ON wishes.frametype = frametypes.frametypeid
+    WHERE wishes.wishid = ?
+    ''', (wishid,))
+    tnfilenameext = c.fetchall()[0]
+    tnfilename="tn_"+str(wishid)+"_"+str(tnframenum)+"."+tnfilenameext[0]
+    thumbnail.save(destination=projpath + tnfilename, overwrite=True) #TODO: Check for proper filename and extension
+    #Update the frames list: if the frame already exists, the UPDATE command will run,
+    #otherwise the INSERT command will run.
+    c.execute('''
+    UPDATE OR IGNORE frames
+      SET status=2, draftfilename=?
+      WHERE wishid=? AND framenumber=?
+    ''', (tnfilename, wishid, tnframenum))
+    c.execute('''
+    INSERT OR IGNORE INTO frames (status, wishid, framenumber, draftfilename)
+    VALUES (2, ?, ?, ?)
+    ''', (wishid, tnframenum, tnfilename))
+    #Note, we set frame status to "draft".  TODO: How will this work if the current status is "running"?
+    conn.commit()
+    c.close()
     #TODO: check file type: if not the right image type or dimensions, kill it with fire.
-#    savetime=datetime.datetime.utcnow()
-    #Now update the database:
-    #Find out whether the file already is listed.
-#    conn = sqlite3.connect('wishes.db')
-#    c = conn.cursor()
-#    c.execute("SELECT blendfileid FROM blendfiles WHERE wishid = ?", (wishid,))
-#    blendfileidlist = c.fetchall()
-#    c.close()
-#    #If file is listed, just update the upload time
-#    if len(blendfileidlist)==1:
-#      conn = sqlite3.connect('wishes.db')
-#      c = conn.cursor()
-#      c.execute("UPDATE blendfiles SET uploadtime= ? WHERE wishid = ?", (savetime.isoformat(' '), wishid))
-#      conn.commit()
-#      c.close()
-#    else:
-#      #If the file is not listed, insert into blendfiles table.
-#      conn = sqlite3.connect('wishes.db')
-#      c = conn.cursor()
-#      c.execute('''
-#      INSERT INTO blendfiles(wishid, filename, uploadtime)
-#      VALUES 
-#        (?, ?, ?)
-#      ''', (wishid, str(wishid) + ".blend", savetime.isoformat(' ')))
-#      conn.commit()
-#      c.close()
   return list() #Just return something for now...
 
 @app.get('/wish/<wishid:int>/projupload') #Upload a blender project file
