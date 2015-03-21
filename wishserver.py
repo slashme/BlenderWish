@@ -66,7 +66,7 @@ def tnupload(wishid):
   else:
     titletext = "Upload thumbnails for project" + wishidlist[0][1]
   uploadaction="/wish/" + str(wishid) + "/tnupload" #set form action variable
-  wishform = template('multi_upload', uploadaction=uploadaction, title=titletext) #Generate a file upload form
+  wishform = template('multi_upload', uploadaction=uploadaction, title=titletext, info="Select thumbnails named [frame number].png") #Generate multiple file upload form
   return wishform
 
 @app.post('/wish/<wishid:int>/tnupload') #Upload a blender project file : post action
