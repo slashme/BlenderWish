@@ -1,5 +1,5 @@
 import sqlite3, os, errno, datetime, re
-from bottle import Bottle, route, get, post, request, run, template, debug, error
+from bottle import Bottle, route, get, post, request, run, template, debug, error, static_file
 
 app = Bottle()
 
@@ -228,6 +228,11 @@ def showprojbyname(wishname):
     return template('not_found', message='Project %s not found'%wishname, title="Unwished")
   else:
     return showproj(result[0][0])
+
+@app.route('/projects/<filepath:path>')
+def server_static(filepath):
+  #return static_file(filepath, root=os.path.join(os.path.dirname(os.path.abspath(__file__)),'/projects/')) # Why doesn't this work???
+  return static_file(filepath, root=os.path.dirname(os.path.abspath(__file__))+'/projects/') 
 
 @app.error(404)
 def error404(error):
