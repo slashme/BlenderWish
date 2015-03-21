@@ -5,7 +5,7 @@
 %#if an item is a tuple, renders it as an href with the first item as the URL
 %#and the second item as the text. 
 <h1>{{title}}</h1>
-<table border="1">
+<table>
 %i=0 #i is 0 for the title row
 %for row in rows:
   <tr>
