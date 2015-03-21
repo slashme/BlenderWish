@@ -1,7 +1,10 @@
-import sqlite3, os, errno, datetime
+import sqlite3, os, errno, datetime, re
 from bottle import Bottle, route, get, post, request, run, template, debug, error
 
 app = Bottle()
+
+#Define regular expressions
+hasnum = re.compile('\d+') #running hasnum.findall returns a list of all the digit sequences in a string, length 0 if none found.
 
 def showproj(wishid):
   conn = sqlite3.connect('wishes.db')
@@ -69,6 +72,7 @@ def tnupload(wishid):
   wishform = template('multi_upload', uploadaction=uploadaction, title=titletext, info="Select thumbnails named [frame number].png") #Generate multiple file upload form
   return wishform
 
+#In progress
 @app.post('/wish/<wishid:int>/tnupload') #Upload a blender project file : post action
 def do_projupload(wishid):
   #If we don't yet have a directory for the project, create it:
@@ -79,6 +83,9 @@ def do_projupload(wishid):
     if exc.errno != errno.EEXIST:
       raise #TODO: Do I need to handle this more gracefully?
   for thumbnail in request.files.getlist('upload[]'): #For each file to be uploaded...
+    if len(hasnum.findall(thumbnail.filename)) == 0: #the filename doesn't contain a number
+      error_text="File name " + thumbnail.filename + " doesn't contain a number"
+      return template('not_found', message=error_text, title="Filename error")
     thumbnail.save(destination=projpath, overwrite=True) #TODO: Check for proper filename and extension
     #TODO: check file type: if not the right image type or dimensions, kill it with fire.
 #    savetime=datetime.datetime.utcnow()
