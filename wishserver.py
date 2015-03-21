@@ -77,7 +77,7 @@ def tnupload(wishid):
 @app.post('/wish/<wishid:int>/tnupload') #Upload a blender project file : post action
 def do_projupload(wishid):
   #If we don't yet have a directory for the project, create it:
-  projpath = os.path.dirname(__file__) + str(wishid) + "/"
+  projpath = os.path.dirname(__file__) + "projects/" + str(wishid) + "/"
   try:
     os.mkdir(projpath)
   except OSError as exc:
@@ -143,7 +143,7 @@ def projupload(wishid):
 def do_projupload(wishid):
   upload=request.files.get('upload')
   #If we don't yet have a directory for the project, create it:
-  projpath = os.path.dirname(__file__) + str(wishid) + "/"
+  projpath = os.path.dirname(__file__) + "projects/" + str(wishid) + "/"
   try:
     os.mkdir(projpath)
   except OSError as exc:
