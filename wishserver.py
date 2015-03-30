@@ -7,6 +7,10 @@ app = Bottle()
 hasnum = re.compile('\d+') #running hasnum.findall returns a list of all the digit sequences in a string, length 0 if none found.
 
 def showproj(wishid):
+  '''
+  Displays a table with the information of the selected project,
+  with links to set project parameters and upload project files.
+  '''
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
   c.execute('''
@@ -71,8 +75,12 @@ def list():
   output = template('make_table', rows=showprojtable, title="Wish list")
   return output
 
-@app.get('/wish/<wishid:int>/tnupload') #Upload thumbnails for blender project
+@app.get('/wish/<wishid:int>/tnupload') 
 def tnupload(wishid):
+  '''
+  Create form to upload thumbnail images for project,
+  to allow verification of rendered frames.
+  '''
   #Check if the wish ID is valid
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
@@ -90,7 +98,12 @@ def tnupload(wishid):
 
 #In progress
 @app.post('/wish/<wishid:int>/tnupload') #Upload a blender project file : post action
-def do_projupload(wishid):
+def do_tnupload(wishid):
+  '''
+  Upload thumbnail images supplied by user
+  to allow verification of rendered frames.
+  Register thumbnails in database.
+  '''
   #If we don't yet have a directory for the project, create it:
   projpath = os.path.dirname(__file__) + "projects/" + str(wishid) + "/"
   try:
@@ -131,8 +144,12 @@ def do_projupload(wishid):
     #TODO: check file type: if not the right image type or dimensions, kill it with fire.
   return list() #Just return something for now...
 
-@app.get('/wish/<wishid:int>/projupload') #Upload a blender project file
+@app.get('/wish/<wishid:int>/projupload') 
 def projupload(wishid):
+  '''
+  Create form to upload the file for the given project.
+  If one already exists, make this clear to the user.
+  '''
   #Check if the wish ID is valid
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
@@ -156,6 +173,10 @@ def projupload(wishid):
 
 @app.post('/wish/<wishid:int>/projupload') #Upload a blender project file : post action
 def do_projupload(wishid):
+  '''
+  Upload the Blender file for the given project, and register it in the
+  database.
+  '''
   upload=request.files.get('upload')
   #If we don't yet have a directory for the project, create it:
   projpath = os.path.dirname(__file__) + "projects/" + str(wishid) + "/"
@@ -196,6 +217,9 @@ def do_projupload(wishid):
 
 @app.get('/makewish') #Create a new project: get action
 def makewish():
+  '''
+  Create form to start a new project.
+  '''
   #Get the list of allowed frametypes to insert into the template.
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
@@ -209,6 +233,9 @@ def makewish():
 
 @app.post('/makewish') #Create a new project: post action
 def do_makewish():
+  '''
+  Create a new project based on user input form.
+  '''
   pn=request.forms.getunicode('wish_name')
   ft=request.forms.getunicode('ft')
   en=request.forms.getunicode('en')
@@ -229,12 +256,18 @@ def do_makewish():
   c.close()
   return showproj(new_wish_id)
 
-@app.route('/wish/<wishid:int>') #Return the project by number - showproj will redirect if not valid ID.
+@app.route('/wish/<wishid:int>') 
 def showprojbynum(wishid):
+  '''
+  Return the project by number - showproj will redirect if not valid ID.
+  '''
   return showproj(wishid)
 
-@app.route('/wish/<wishname>') #If valid project name, find the number and run showproj, else redirect.
+@app.route('/wish/<wishname>') 
 def showprojbyname(wishname):
+  '''
+  If valid project name, find the number and run showproj, else redirect.
+  '''
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
   c.execute("SELECT wishid FROM wishes WHERE name = ?", (wishname,))
@@ -246,11 +279,17 @@ def showprojbyname(wishname):
 
 @app.route('/projects/<filepath:path>')
 def server_static(filepath):
+  '''
+  Serve static project file by name.
+  '''
   #return static_file(filepath, root=os.path.join(os.path.dirname(os.path.abspath(__file__)),'/projects/')) # Why doesn't this work???
   return static_file(filepath, root=os.path.dirname(os.path.abspath(__file__))+'/projects/') 
 
 @app.error(404)
 def error404(error):
+    '''
+    When we don't have a path for a given request, return to the project list.
+    '''
     return list()
 
 debug(True)
