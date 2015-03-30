@@ -55,7 +55,36 @@ def showproj(wishid):
     showprojtable += [['',['/wish/'+wish_id+'/projupload','Upload new .blend file']]]
   output = template('make_table', rows=showprojtable, title='Project %s'%result[0])
   return output
-  
+  #TODO:
+  #Use mod_param template to allow project parameters to be modified.
+  #Create method to update parameters.
+
+#In progress: Creating form to modify single project parameter
+@app.get('/wish/<wishid:int>/update/<param>') 
+def mod_param(wishid, param):
+  '''
+  Create form to modify single parameter of project.
+  "param" should have the form "table.value".
+  '''
+  #Check if the wish ID is valid
+  conn = sqlite3.connect('wishes.db')
+  c = conn.cursor()
+  c.execute("SELECT wishid, name FROM wishes WHERE wishid = ?", (wishid,))
+  wishidlist = c.fetchall() #This should have length 1
+  c.close()
+  if len(wishidlist)==0:
+    return template('not_found', message='Project %s not found'%wishid, title="Unwished")
+  #Now check whether the parameter is valid...
+  return template('not_found', message=str(wishid)+' '+param, title="Not yet implemented") 
+
+#  titletext = "Upload thumbnails for project" + wishidlist[0][1]
+#  uploadaction="/wish/" + str(wishid) + "/tnupload" #set form action variable
+#  wishform = template('multi_upload', uploadaction=uploadaction, title=titletext, info="Select thumbnails named [frame number].png") #Generate multiple file upload form
+#  return wishform
+
+
+#End In progress: Creating form to modify single project parameter
+
 @app.route('/list') #List projects
 def list():
   conn = sqlite3.connect('wishes.db')
@@ -92,8 +121,8 @@ def tnupload(wishid):
   if len(wishidlist)==0:
     return template('not_found', message='Project %s not found'%wishid, title="Unwished")
   #TODO: Check whether we have thumbnails already, warn if so.
-  else:
-    titletext = "Upload thumbnails for project" + wishidlist[0][1]
+  #No need for an else clause: returned.
+  titletext = "Upload thumbnails for project" + wishidlist[0][1]
   uploadaction="/wish/" + str(wishid) + "/tnupload" #set form action variable
   wishform = template('multi_upload', uploadaction=uploadaction, title=titletext, info="Select thumbnails named [frame number].png") #Generate multiple file upload form
   return wishform
