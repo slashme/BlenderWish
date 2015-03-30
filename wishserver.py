@@ -15,7 +15,8 @@ def showproj(wishid):
     projectstatus.name AS status_name,
     frametypes.name AS frametype_name,
     engines.name AS engine_name,
-    blendfiles.uploadtime
+    blendfiles.uploadtime,
+    blendfiles.filename
   FROM 
     wishes
     LEFT JOIN projectstatus ON wishes.status = projectstatus.statusid
@@ -36,12 +37,16 @@ def showproj(wishid):
   frametype_name=result[2]
   engine_name=result[3]
   try:
-    uploadtime="Uploaded at " + result[4].split('.')[0] #If this is a timestamp, remove the fractions of seconds
+    uploadtime=result[4].split('.')[0] #If this is a timestamp, remove the fractions of seconds
   except AttributeError:
     uploadtime="" #Else there is no upload time.
   showprojtable = [[]] #Hack: Include an empty row so that there will be no table header
-  showprojtable += [['Wish name:',wish_name],['Status:',status_name],['Frame type',frametype_name],['Engine:',engine_name],['Blend file:',['/projects/'+wish_id+'/'+wish_id+'.blend',wish_id+'.blend']],['','Uploaded at '+uploadtime]]
-  #showprojtable += [[result[1],result[2],result[3],result[4],['/wish/'+str(result[0])+'/projupload',str(result[5]).split('.')[0]]]]
+  showprojtable += [['Wish name:',wish_name],['Status:',status_name],['Frame type',frametype_name],['Engine:',engine_name]]
+  if not result[5]:
+    showprojtable += [['No Blender file:',['/wish/'+wish_id+'/projupload','Upload .blend file']]]
+  else:
+    showprojtable += [['Blend file:',['/projects/'+wish_id+'/'+wish_id+'.blend',wish_id+'.blend']]]
+    showprojtable += [['','Uploaded at '+uploadtime]]
   output = template('make_table', rows=showprojtable, title='Project %s'%result[0])
   return output
   
