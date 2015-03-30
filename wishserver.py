@@ -20,7 +20,9 @@ def showproj(wishid):
     frametypes.name AS frametype_name,
     engines.name AS engine_name,
     blendfiles.uploadtime,
-    blendfiles.filename
+    blendfiles.filename,
+    wishes.firstframe,
+    wishes.lastframe
   FROM 
     wishes
     LEFT JOIN projectstatus ON wishes.status = projectstatus.statusid
@@ -49,8 +51,8 @@ def showproj(wishid):
   if not result[5]:
     showprojtable += [['No Blender file:',['/wish/'+wish_id+'/projupload','Upload .blend file']]]
   else:
-    showprojtable += [['Blend file:',['/projects/'+wish_id+'/'+wish_id+'.blend',wish_id+'.blend']]]
-    showprojtable += [['','Uploaded at '+uploadtime]]
+    showprojtable += [['Blend file:',['/projects/'+wish_id+'/'+result[5],result[5]+', Uploaded at '+uploadtime]]]
+    showprojtable += [['',['/wish/'+wish_id+'/projupload','Upload new .blend file']]]
   output = template('make_table', rows=showprojtable, title='Project %s'%result[0])
   return output
   
@@ -96,7 +98,6 @@ def tnupload(wishid):
   wishform = template('multi_upload', uploadaction=uploadaction, title=titletext, info="Select thumbnails named [frame number].png") #Generate multiple file upload form
   return wishform
 
-#In progress
 @app.post('/wish/<wishid:int>/tnupload') #Upload a blender project file : post action
 def do_tnupload(wishid):
   '''
@@ -282,7 +283,7 @@ def server_static(filepath):
   '''
   Serve static project file by name.
   '''
-  #return static_file(filepath, root=os.path.join(os.path.dirname(os.path.abspath(__file__)),'/projects/')) # Why doesn't this work???
+  #TODO: serve with proper mime type; enforce download?
   return static_file(filepath, root=os.path.dirname(os.path.abspath(__file__))+'/projects/') 
 
 @app.error(404)
