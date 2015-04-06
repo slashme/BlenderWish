@@ -59,6 +59,7 @@ def showproj(wishid):
   #Create method to update parameters.
 
 #In progress: Creating form to modify single project parameter
+#TODO: make this work for more than just list parameters.
 @app.get('/wish/<wishid:int>/update/<param>') 
 def mod_param(wishid, param):
   '''
@@ -89,29 +90,31 @@ def mod_param(wishid, param):
   c.close()
   if not result:
     return template('not_found', message="Cannot change "+mp_tf[1]+" in "+mp_tf[0], title="Not permitted") 
+  #Now check whether the parameter is a foreign key:
   c = conn.cursor()
   #Pragma statements cannot be parametrized, but we have already checked that
   #the table exists and the parameter is editable, so this should be OK:
   c.execute("PRAGMA foreign_key_list("+mp_tf[0]+")") 
   result = c.fetchall()
   c.close()
+  #This returns a list of all the foreign keys in the given table.
+  #Now list all foreign keys that match the requested field:
+  foreign_relation = [v for i, v in enumerate(result) if v[3] == mp_tf[1]]
+  if foreign_relation: # if it's not an empty list
+    #return template('not_found', message=str(foreign_relation), title="Not yet implemented") 
+    c = conn.cursor()
+    #Again, can't parameterize table name, but we are again safe here.
+    c.execute("SELECT "+foreign_relation[0][4]+" FROM " + foreign_relation[0][2]) 
+    result = c.fetchall()
+    c.close()
+    editvalue=result
+    edittype="select"
+  editdesc="the parameter to edit"
+  titletext="change single parameter for project" + wishidlist[0][1]
+  editaction="/wish/" + str(wishid) + "/update/" +str(param) #set form action variable
+  editform = template('mod_param', edit_value=editvalue, edit_desc=editdesc, edit_action=editaction, edit_type=edittype, title=titletext, info="info") #Generate multiple file upload form
+  return editform
   return template('not_found', message=str(result), title="Not yet implemented") 
-
-#Hint on how to find matching lines...
-# >>> [i for i, v in enumerate(a)]
-# [0, 1, 2]
-# >>> [i for i, v in enumerate(a) if v[3] == 'engine']
-# [0]
-# >>> [i for i, v in enumerate(a) if v[3] == 'frametype']
-# [1]
-# >>> [i for i, v in enumerate(a) if v[3] == 'frametypeasdfa']
-# []
-
-#  titletext = "Upload thumbnails for project" + wishidlist[0][1]
-#  uploadaction="/wish/" + str(wishid) + "/tnupload" #set form action variable
-#  wishform = template('multi_upload', uploadaction=uploadaction, title=titletext, info="Select thumbnails named [frame number].png") #Generate multiple file upload form
-#  return wishform
-
 
 #End In progress: Creating form to modify single project parameter
 
