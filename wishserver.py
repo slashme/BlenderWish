@@ -16,19 +16,18 @@ def showproj(wishid):
   c.execute('''
   SELECT
     wishes.name AS wish_name, 
-    projectstatus.name AS status_name,
+    projectstatus.status AS proj_status,
     frametypes.name AS frametype_name,
-    engines.name AS engine_name,
+    wishes.engine,
     blendfiles.uploadtime,
     blendfiles.filename,
     wishes.firstframe,
     wishes.lastframe
   FROM 
     wishes
-    LEFT JOIN projectstatus ON wishes.status = projectstatus.statusid
-    LEFT JOIN frametypes ON wishes.frametype = frametypes.frametypeid
-    LEFT JOIN engines ON wishes.engine = engines.engineid
-    LEFT JOIN blendfiles ON wishes.wishid = blendfiles.wishid
+    LEFT JOIN projectstatus ON wishes.status    = projectstatus.status
+    LEFT JOIN frametypes    ON wishes.frametype = frametypes.frametypeid
+    LEFT JOIN blendfiles    ON wishes.wishid    = blendfiles.wishid
     WHERE wishes.wishid = ?
   ''', (wishid,))
   result = c.fetchall()
@@ -39,7 +38,7 @@ def showproj(wishid):
   result=result[0] #Only one row, so reduce the typing...
   wish_id=str(wishid)
   wish_name=result[0]
-  status_name=result[1]
+  proj_status=result[1]
   frametype_name=result[2]
   engine_name=result[3]
   try:
@@ -47,7 +46,7 @@ def showproj(wishid):
   except AttributeError:
     uploadtime="" #Else there is no upload time.
   showprojtable = [[]] #Hack: Include an empty row so that there will be no table header
-  showprojtable += [['Wish name:',wish_name],['Status:',status_name],['Frame type',frametype_name],['Engine:',engine_name]]
+  showprojtable += [['Wish name:',wish_name],['Status:',proj_status],['Frame type',frametype_name],['Engine:',engine_name]]
   if not result[5]:
     showprojtable += [['No Blender file:',['/wish/'+wish_id+'/projupload','Upload .blend file']]]
   else:
@@ -83,7 +82,7 @@ def mod_param(wishid, param):
     ?.? AS selectedfield 
   FROM 
     wishes
-    LEFT JOIN projectstatus ON wishes.status = projectstatus.statusid
+    LEFT JOIN projectstatus ON wishes.status = projectstatus.status
     LEFT JOIN frametypes ON wishes.frametype = frametypes.frametypeid
     LEFT JOIN engines ON wishes.engine = engines.engineid
     LEFT JOIN blendfiles ON wishes.wishid = blendfiles.wishid
@@ -106,12 +105,9 @@ def list():
   c = conn.cursor()
   c.execute('''
   SELECT
-    wishes.wishid AS wish_id, 
-    wishes.name AS wish_name, 
-    projectstatus.name AS status_name
+    wishid, name, status
   FROM 
     wishes 
-    LEFT JOIN projectstatus ON wishes.status = projectstatus.statusid
   ''')
   result = c.fetchall()
   c.close()
@@ -135,8 +131,8 @@ def tnupload(wishid):
   c.close()
   if len(wishidlist)==0:
     return template('not_found', message='Project %s not found'%wishid, title="Unwished")
-  #TODO: Check whether we have thumbnails already, warn if so.
   #No need for an else clause: returned.
+  #TODO: Check whether we have thumbnails already, warn if so.
   titletext = "Upload thumbnails for project" + wishidlist[0][1]
   uploadaction="/wish/" + str(wishid) + "/tnupload" #set form action variable
   wishform = template('multi_upload', uploadaction=uploadaction, title=titletext, info="Select thumbnails named [frame number].png") #Generate multiple file upload form
@@ -181,7 +177,7 @@ def do_tnupload(wishid):
     ''', (tnfilename, wishid, tnframenum))
     c.execute('''
     INSERT OR IGNORE INTO frames (status, wishid, framenumber, draftfilename)
-    VALUES (2, ?, ?, ?)
+    VALUES ('draft', ?, ?, ?)
     ''', (wishid, tnframenum, tnfilename))
     #Note, we set frame status to "draft".  TODO: How will this work if the current status is "running"?
     conn.commit()
@@ -270,7 +266,7 @@ def makewish():
   c = conn.cursor()
   c.execute("SELECT frametypeid, name FROM frametypes")
   frametypelist = c.fetchall()
-  c.execute("SELECT engineid, name FROM engines")
+  c.execute("SELECT name FROM engines")
   enginelist = c.fetchall()
   c.close()
   wishform = template('wish_form', enginelist=enginelist, frametypelist=frametypelist, title="Make a Blender wish") #Generate a form with pre-populated option lists.
@@ -295,7 +291,7 @@ def do_makewish():
   INSERT INTO wishes(name, majorversion, minorversion, versionsuffix, status, frametype, firstframe, lastframe, engine)
   VALUES 
     (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  ''', (pn, maj_ver, min_ver, ver_suf, 1, ft, fr1, frn, en))
+  ''', (pn, maj_ver, min_ver, ver_suf, 'stopped', ft, fr1, frn, en))
   new_wish_id = c.lastrowid
   conn.commit()
   c.close()
@@ -320,6 +316,7 @@ def showprojbyname(wishname):
   if len(result)==0:
     return template('not_found', message='Project %s not found'%wishname, title="Unwished")
   else:
+    #Just use the first matching name.  TODO: Handle duplicates?
     return showproj(result[0][0])
 
 @app.route('/projects/<filepath:path>')
