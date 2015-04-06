@@ -2,28 +2,25 @@ import sqlite3
 con = sqlite3.connect('wishes.db')
 con.execute('''
 CREATE TABLE projectstatus (
-  statusid INTEGER PRIMARY KEY,
-  name TEXT NOT NULL
+  status TEXT PRIMARY KEY
   )
 ''')
 con.execute('''
 CREATE TABLE clientstatus (
-  statusid INTEGER PRIMARY KEY,
-  name TEXT NOT NULL
+  status TEXT PRIMARY KEY
   )
 ''')
 con.execute('''
 CREATE TABLE framestatus (
-  statusid INTEGER PRIMARY KEY,
-  name TEXT NOT NULL
+  status TEXT PRIMARY KEY
   )
 ''')
 con.execute('''
 CREATE TABLE clients (
   clientid INTEGER PRIMARY KEY,
   ip INTEGER,
-  status INTEGER NOT NULL,
-  FOREIGN KEY(status) REFERENCES clientstatus(statusid))
+  status TEXT NOT NULL,
+  FOREIGN KEY(status) REFERENCES clientstatus(status))
 ''')
 con.execute('''
 CREATE TABLE frametypes (
@@ -42,7 +39,7 @@ CREATE TABLE blendfiles (
 con.execute('''
 CREATE TABLE frames (
   frameid INTEGER PRIMARY KEY,
-  status INTEGER NOT NULL,
+  status TEXT NOT NULL,
   wishid INTEGER NOT NULL,
   framenumber INTEGER,
   clientid INTEGER,
@@ -52,14 +49,13 @@ CREATE TABLE frames (
   renderend TEXT,
   uploadstart TEXT,
   uploadend TEXT,
-  FOREIGN KEY(status) REFERENCES framestatus(statusid),
+  FOREIGN KEY(status) REFERENCES framestatus(status),
   FOREIGN KEY(wishid) REFERENCES wishes(wishid),
   FOREIGN KEY(clientid) REFERENCES clients(clientid))
 ''')
 con.execute('''
 CREATE TABLE engines (
-  engineid INTEGER PRIMARY KEY,
-  name TEXT NOT NULL)
+  name TEXT PRIMARY KEY)
 ''')
 con.execute('''
 CREATE TABLE wishes (
@@ -68,14 +64,14 @@ CREATE TABLE wishes (
   majorversion INTEGER NOT NULL,
   minorversion INTEGER NOT NULL,
   versionsuffix TEXT,
-  status INTEGER NOT NULL,
+  status TEXT NOT NULL,
   frametype INTEGER NOT NULL,
   firstframe INTEGER,
   lastframe INTEGER,
-  engine INTEGER NOT NULL,
-  FOREIGN KEY(status) REFERENCES projectstatus(statusid),
+  engine TEXT NOT NULL,
+  FOREIGN KEY(status) REFERENCES projectstatus(status),
   FOREIGN KEY(frametype) REFERENCES frametypes(frametypeid),
-  FOREIGN KEY(engine) REFERENCES engines(engineid))
+  FOREIGN KEY(engine) REFERENCES engines(name))
 ''')
 #Create table of tables
 con.execute('''
