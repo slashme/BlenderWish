@@ -84,7 +84,7 @@ con.execute('''
 CREATE TABLE userfields (
   id INTEGER PRIMARY KEY,
   tableid TEXT NOT NULL,
-  name TEXT NOT NULL,
+  field TEXT NOT NULL,
   editable INTEGER NOT NULL,
   FOREIGN KEY(tableid) REFERENCES alltables(name)
   )
@@ -93,48 +93,34 @@ CREATE TABLE userfields (
 con.execute("INSERT INTO engines (name) VALUES ('cycles')")
 con.execute("INSERT INTO engines (name) VALUES ('internal')")
 #Populate client status table
-con.execute("INSERT INTO clientstatus (name) VALUES ('new')")
-con.execute("INSERT INTO clientstatus (name) VALUES ('good')")
-con.execute("INSERT INTO clientstatus (name) VALUES ('bad')")
+con.execute("INSERT INTO clientstatus (status) VALUES ('new')")
+con.execute("INSERT INTO clientstatus (status) VALUES ('good')")
+con.execute("INSERT INTO clientstatus (status) VALUES ('bad')")
 #Populate frame status table
-con.execute("INSERT INTO framestatus (name) VALUES ('empty')")
-con.execute("INSERT INTO framestatus (name) VALUES ('draft')")
-con.execute("INSERT INTO framestatus (name) VALUES ('running')")
-con.execute("INSERT INTO framestatus (name) VALUES ('done')")
+con.execute("INSERT INTO framestatus (status) VALUES ('empty')")
+con.execute("INSERT INTO framestatus (status) VALUES ('draft')")
+con.execute("INSERT INTO framestatus (status) VALUES ('running')")
+con.execute("INSERT INTO framestatus (status) VALUES ('done')")
 #Populate project status table
-con.execute("INSERT INTO projectstatus (name) VALUES ('stopped')")
-con.execute("INSERT INTO projectstatus (name) VALUES ('running')")
-con.execute("INSERT INTO projectstatus (name) VALUES ('complete')")
+con.execute("INSERT INTO projectstatus (status) VALUES ('stopped')")
+con.execute("INSERT INTO projectstatus (status) VALUES ('running')")
+con.execute("INSERT INTO projectstatus (status) VALUES ('complete')")
 #Populate frametypes table - just some basic values; fix later.
 con.execute("INSERT INTO frametypes (ext, name) VALUES ('png','PNG')")
 con.execute("INSERT INTO frametypes (ext, name) VALUES ('jpg','JPEG')")
 con.execute("INSERT INTO frametypes (ext, name) VALUES ('exr','OpenEXR')")
 #For testing purposes, create dummy projects.
-con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish1', '2', '73', 1, 1, 1)") 
-con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish2', '2', '73', 2, 2, 2)") 
-#Populate table of tables
-con.execute("INSERT INTO alltables (name) VALUES ('projectstatus')")
-con.execute("INSERT INTO alltables (name) VALUES ('clientstatus')")
-con.execute("INSERT INTO alltables (name) VALUES ('framestatus')")
-con.execute("INSERT INTO alltables (name) VALUES ('clients')")
-con.execute("INSERT INTO alltables (name) VALUES ('frametypes')")
-con.execute("INSERT INTO alltables (name) VALUES ('blendfiles')")
-con.execute("INSERT INTO alltables (name) VALUES ('frames')")
-con.execute("INSERT INTO alltables (name) VALUES ('engines')")
-con.execute("INSERT INTO alltables (name) VALUES ('wishes')")
-con.execute("INSERT INTO alltables (name) VALUES ('alltables')")
-con.execute("INSERT INTO alltables (name) VALUES ('userfields')")
+con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish1', '2', '73', 'stopped', 1, 'cycles')") 
+con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish2', '2', '73', 'running', 2, 'internal')") 
 #Populate table of user-editable fields - anything with value "1" is user-editable.
-con.execute("INSERT INTO userfields (tableid, name, editable) VALUES ('tableid', 'field', 1)")
-blendfiles', 'filename
-    wishes', 'name
-    wishes', 'majorversion
-    wishes', 'minorversion
-    wishes', 'versionsuffix
-    wishes', 'status
-    wishes', 'frametype
-    wishes', 'firstframe
-    wishes', 'lastframe
-    wishes', 'engine
-''')
+con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('blendfiles', 'filename',      1)")
+con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'name',          1)")
+con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'majorversion',  1)")
+con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'minorversion',  1)")
+con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'versionsuffix', 1)")
+con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'status',        1)")
+con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'frametype',     1)")
+con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'firstframe',    1)")
+con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'lastframe',     1)")
+con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'engine',        1)")
 con.commit()
