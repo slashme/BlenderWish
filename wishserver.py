@@ -64,8 +64,10 @@ def showproj(wishid):
 def mod_param(wishid, param):
   '''
   Create form to modify single parameter of project.
-  "param" should have the form "table.value".
+  "param" should have the form "table.field.value".
   '''
+  #Extract the table, field and value from the parameter field.
+  mp_tfv=param.split('.') #mp_tfv is mod_param table/field/value
   #Check if the wish ID is valid
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
@@ -75,6 +77,19 @@ def mod_param(wishid, param):
   if len(wishidlist)==0:
     return template('not_found', message='Project %s not found'%wishid, title="Unwished")
   #Now check whether the parameter is valid...
+  c = conn.cursor()
+  c.execute('''
+  SELECT
+    ?.? AS selectedfield 
+  FROM 
+    wishes
+    LEFT JOIN projectstatus ON wishes.status = projectstatus.statusid
+    LEFT JOIN frametypes ON wishes.frametype = frametypes.frametypeid
+    LEFT JOIN engines ON wishes.engine = engines.engineid
+    LEFT JOIN blendfiles ON wishes.wishid = blendfiles.wishid
+    WHERE wishes.wishid = ?
+  ''', (wishid,))
+  c.close()
   return template('not_found', message=str(wishid)+' '+param, title="Not yet implemented") 
 
 #  titletext = "Upload thumbnails for project" + wishidlist[0][1]

@@ -77,6 +77,22 @@ CREATE TABLE wishes (
   FOREIGN KEY(frametype) REFERENCES frametypes(frametypeid),
   FOREIGN KEY(engine) REFERENCES engines(engineid))
 ''')
+#Create table of tables
+con.execute('''
+CREATE TABLE alltables (
+  name TEXT PRIMARY KEY
+  )
+''')
+#Create table of user-editable fields
+con.execute('''
+CREATE TABLE userfields (
+  id INTEGER PRIMARY KEY,
+  tableid TEXT NOT NULL,
+  name TEXT NOT NULL,
+  editable INTEGER NOT NULL,
+  FOREIGN KEY(tableid) REFERENCES alltables(name)
+  )
+''')
 #Populate engines table
 con.execute("INSERT INTO engines (name) VALUES ('cycles')")
 con.execute("INSERT INTO engines (name) VALUES ('internal')")
@@ -100,4 +116,29 @@ con.execute("INSERT INTO frametypes (ext, name) VALUES ('exr','OpenEXR')")
 #For testing purposes, create dummy projects.
 con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish1', '2', '73', 1, 1, 1)") 
 con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish2', '2', '73', 2, 2, 2)") 
+#Populate table of tables
+con.execute("INSERT INTO alltables (name) VALUES ('projectstatus')")
+con.execute("INSERT INTO alltables (name) VALUES ('clientstatus')")
+con.execute("INSERT INTO alltables (name) VALUES ('framestatus')")
+con.execute("INSERT INTO alltables (name) VALUES ('clients')")
+con.execute("INSERT INTO alltables (name) VALUES ('frametypes')")
+con.execute("INSERT INTO alltables (name) VALUES ('blendfiles')")
+con.execute("INSERT INTO alltables (name) VALUES ('frames')")
+con.execute("INSERT INTO alltables (name) VALUES ('engines')")
+con.execute("INSERT INTO alltables (name) VALUES ('wishes')")
+con.execute("INSERT INTO alltables (name) VALUES ('alltables')")
+con.execute("INSERT INTO alltables (name) VALUES ('userfields')")
+#Populate table of user-editable fields - anything with value "1" is user-editable.
+con.execute("INSERT INTO userfields (tableid, name, editable) VALUES ('tableid', 'field', 1)")
+blendfiles', 'filename
+    wishes', 'name
+    wishes', 'majorversion
+    wishes', 'minorversion
+    wishes', 'versionsuffix
+    wishes', 'status
+    wishes', 'frametype
+    wishes', 'firstframe
+    wishes', 'lastframe
+    wishes', 'engine
+''')
 con.commit()
