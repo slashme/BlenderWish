@@ -46,7 +46,7 @@ def showproj(wishid):
   except AttributeError:
     uploadtime="" #Else there is no upload time.
   showprojtable = [[]] #Hack: Include an empty row so that there will be no table header
-  showprojtable += [['Wish name:',wish_name],['Status:',proj_status],['Frame type',frametype_name],['Engine:',engine_name]]
+  showprojtable += [['Wish name:',['/wish/'+wish_id+'/update/wishes.name','wish_name']],['Status:',proj_status],['Frame type:',frametype_name],['Engine:',engine_name]]
   if not result[5]:
     showprojtable += [['No Blender file:',['/wish/'+wish_id+'/projupload','Upload .blend file']]]
   else:
@@ -63,10 +63,10 @@ def showproj(wishid):
 def mod_param(wishid, param):
   '''
   Create form to modify single parameter of project.
-  "param" should have the form "table.field.value".
+  "param" should have the form "table.field".
   '''
   #Extract the table, field and value from the parameter field.
-  mp_tfv=param.split('.') #mp_tfv is mod_param table/field/value
+  mp_tf=param.split('.') #mp_tf is mod_param table/field
   #Check if the wish ID is valid
   conn = sqlite3.connect('wishes.db')
   c = conn.cursor()
@@ -79,16 +79,16 @@ def mod_param(wishid, param):
   c = conn.cursor()
   c.execute('''
   SELECT
-    ?.? AS selectedfield 
+    editable
   FROM 
-    wishes
-    LEFT JOIN projectstatus ON wishes.status = projectstatus.status
-    LEFT JOIN frametypes ON wishes.frametype = frametypes.frametypeid
-    LEFT JOIN engines ON wishes.engine = engines.engineid
-    LEFT JOIN blendfiles ON wishes.wishid = blendfiles.wishid
-    WHERE wishes.wishid = ?
-  ''', (wishid,))
+    userfields
+    WHERE tableid = ?
+    AND field = ?
+  ''', (mp_tf[0],mp_tf[1]))
+  result = c.fetchall()
   c.close()
+  if not result:
+    return template('not_found', message="Cannot change "+mp_tf[1]+" in "+mp_tf[0], title="Not permitted") 
   return template('not_found', message=str(wishid)+' '+param, title="Not yet implemented") 
 
 #  titletext = "Upload thumbnails for project" + wishidlist[0][1]
