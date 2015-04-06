@@ -89,7 +89,23 @@ def mod_param(wishid, param):
   c.close()
   if not result:
     return template('not_found', message="Cannot change "+mp_tf[1]+" in "+mp_tf[0], title="Not permitted") 
-  return template('not_found', message=str(wishid)+' '+param, title="Not yet implemented") 
+  c = conn.cursor()
+  #Pragma statements cannot be parametrized, but we have already checked that
+  #the table exists and the parameter is editable, so this should be OK:
+  c.execute("PRAGMA foreign_key_list("+mp_tf[0]+")") 
+  result = c.fetchall()
+  c.close()
+  return template('not_found', message=str(result), title="Not yet implemented") 
+
+#Hint on how to find matching lines...
+# >>> [i for i, v in enumerate(a)]
+# [0, 1, 2]
+# >>> [i for i, v in enumerate(a) if v[3] == 'engine']
+# [0]
+# >>> [i for i, v in enumerate(a) if v[3] == 'frametype']
+# [1]
+# >>> [i for i, v in enumerate(a) if v[3] == 'frametypeasdfa']
+# []
 
 #  titletext = "Upload thumbnails for project" + wishidlist[0][1]
 #  uploadaction="/wish/" + str(wishid) + "/tnupload" #set form action variable

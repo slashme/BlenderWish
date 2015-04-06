@@ -73,20 +73,12 @@ CREATE TABLE wishes (
   FOREIGN KEY(frametype) REFERENCES frametypes(frametypeid),
   FOREIGN KEY(engine) REFERENCES engines(name))
 ''')
-#Create table of tables
-con.execute('''
-CREATE TABLE alltables (
-  name TEXT PRIMARY KEY
-  )
-''')
 #Create table of user-editable fields
 con.execute('''
 CREATE TABLE userfields (
-  id INTEGER PRIMARY KEY,
   tableid TEXT NOT NULL,
   field TEXT NOT NULL,
-  editable INTEGER NOT NULL,
-  FOREIGN KEY(tableid) REFERENCES alltables(name)
+  editable INTEGER NOT NULL
   )
 ''')
 #Populate engines table
@@ -113,7 +105,6 @@ con.execute("INSERT INTO frametypes (ext, name) VALUES ('exr','OpenEXR')")
 con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish1', '2', '73', 'stopped', 1, 'cycles')") 
 con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish2', '2', '73', 'running', 2, 'internal')") 
 #Populate table of user-editable fields - anything with value "1" is user-editable.
-con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('blendfiles', 'filename',      1)")
 con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'name',          1)")
 con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'majorversion',  1)")
 con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'minorversion',  1)")
