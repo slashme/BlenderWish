@@ -117,9 +117,15 @@ def mod_param(wishid, param):
     #titletext="change single parameter for project"
     titletext=str(foreign_relation)
     editaction="/wish/" + str(wishid) + "/update/" +str(param) #set form action variable
-    editform = template('mod_param', edit_value=editvalue, edit_desc=editdesc, edit_action=editaction, edit_type=edittype, title=titletext, projname=wishidlist[0][1], info="info") #Generate multiple file upload form
+    editform = template('mod_param', edit_value=editvalue, edit_desc=editdesc, edit_action=editaction, edit_type=edittype, title=titletext, projname=wishidlist[0][1], info="info") #Generate parameter modification form
     return editform
-  return template('not_found', message=str(result), title="Not yet implemented") 
+  c = conn.cursor()
+  #Again, can't parameterize table name, but we are again safe here.
+  c.execute("PRAGMA table_info("+mp_tf[0]+")") 
+  result = c.fetchall()
+  c.close()
+  vartype= [v for i, v in enumerate(result) if v[1] == mp_tf[1]][0][2]
+  return template('not_found', message=str(vartype), title="Not yet implemented") 
   return template('not_found', message=str(mp_tf[0]), title="Not yet implemented") 
 
 #End In progress: Creating form to modify single project parameter
