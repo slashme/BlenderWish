@@ -4,7 +4,7 @@
 %#edit_desc is the description of the parameter to update.
 %#edit_type is the type of input field to use.
 %#edit_value is the current value (if a single value) or the list of permitted values (if a foreign key)
-<h1>{{title}}</h1>
+<h1>{{title}} <em>{{projname}}</em></h1>
 <form action="{{edit_action}}" method="post" enctype='multipart/form-data'>
 %if edit_type == "select":
   {{edit_desc}} <select name="returnvalue">
