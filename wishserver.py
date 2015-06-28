@@ -109,12 +109,14 @@ def mod_param(wishid, param):
     c.close()
     editvalue=result
     edittype="select"
-  editdesc="the parameter to edit"
-  titletext="change single parameter for project" + wishidlist[0][1]
-  editaction="/wish/" + str(wishid) + "/update/" +str(param) #set form action variable
-  editform = template('mod_param', edit_value=editvalue, edit_desc=editdesc, edit_action=editaction, edit_type=edittype, title=titletext, info="info") #Generate multiple file upload form
-  return editform
+    editdesc=mp_tf[1]
+    #titletext="change single parameter for project"
+    titletext=str(foreign_relation)
+    editaction="/wish/" + str(wishid) + "/update/" +str(param) #set form action variable
+    editform = template('mod_param', edit_value=editvalue, edit_desc=editdesc, edit_action=editaction, edit_type=edittype, title=titletext, projname=wishidlist[0][1], info="info") #Generate multiple file upload form
+    return editform
   return template('not_found', message=str(result), title="Not yet implemented") 
+  return template('not_found', message=str(mp_tf[0]), title="Not yet implemented") 
 
 #End In progress: Creating form to modify single project parameter
 
