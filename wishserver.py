@@ -80,7 +80,7 @@ def mod_param(wishid, param):
   c = conn.cursor()
   c.execute('''
   SELECT
-    editable
+    editable, namefield
   FROM 
     userfields
     WHERE tableid = ?
@@ -88,8 +88,9 @@ def mod_param(wishid, param):
   ''', (mp_tf[0],mp_tf[1]))
   result = c.fetchall()
   c.close()
-  if not result:
+  if not result[0][0]:
     return template('not_found', message="Cannot change "+mp_tf[1]+" in "+mp_tf[0], title="Not permitted") 
+  namefield=result[0][1]
   #Now check whether the parameter is a foreign key:
   c = conn.cursor()
   #Pragma statements cannot be parametrized, but we have already checked that
@@ -104,7 +105,10 @@ def mod_param(wishid, param):
     #return template('not_found', message=str(foreign_relation), title="Not yet implemented") 
     c = conn.cursor()
     #Again, can't parameterize table name, but we are again safe here.
-    c.execute("SELECT "+foreign_relation[0][4]+" FROM " + foreign_relation[0][2]) 
+    if(namefield):
+      c.execute("SELECT "+foreign_relation[0][4]+","+namefield+" FROM " + foreign_relation[0][2]) 
+    else:
+      c.execute("SELECT "+foreign_relation[0][4]+","+foreign_relation[0][4]+" FROM " + foreign_relation[0][2]) 
     result = c.fetchall()
     c.close()
     editvalue=result

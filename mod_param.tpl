@@ -9,7 +9,7 @@
 %if edit_type == "select":
   {{edit_desc}} <select name="returnvalue">
                   %for item in edit_value:
-                    <option value="{{item[0]}}">{{item[0]}}</option>
+                    <option value="{{item[0]}}">{{item[1]}}</option>
                   %end #for
                 </select><br>
 %else: 
