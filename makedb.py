@@ -78,6 +78,7 @@ con.execute('''
 CREATE TABLE userfields (
   tableid TEXT NOT NULL,
   field TEXT NOT NULL,
+  namefield TEXT,
   editable INTEGER NOT NULL
   )
 ''')
@@ -104,14 +105,15 @@ con.execute("INSERT INTO frametypes (ext, name) VALUES ('exr','OpenEXR')")
 #For testing purposes, create dummy projects.
 con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish1', '2', '73', 'stopped', 1, 'cycles')") 
 con.execute("INSERT INTO wishes (name, majorversion, minorversion, status, frametype, engine) VALUES ('wish2', '2', '73', 'running', 2, 'internal')") 
-#Populate table of user-editable fields - anything with value "1" is user-editable.
-con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'name',          1)")
-con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'majorversion',  1)")
-con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'minorversion',  1)")
-con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'versionsuffix', 1)")
-con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'status',        1)")
-con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'frametype',     1)")
-con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'firstframe',    1)")
-con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'lastframe',     1)")
-con.execute("INSERT INTO userfields (tableid, field, editable) VALUES ('wishes',     'engine',        1)")
+#Populate table of user-editable fields - anything with value "1" is user-editable. "namefield" is the field
+#in a foreign table containing the name of a given key.
+con.execute("INSERT INTO userfields (tableid, field, namefield, editable) VALUES ('wishes', 'name',              '', 1)")
+con.execute("INSERT INTO userfields (tableid, field, namefield, editable) VALUES ('wishes', 'majorversion',      '', 1)")
+con.execute("INSERT INTO userfields (tableid, field, namefield, editable) VALUES ('wishes', 'minorversion',      '', 1)")
+con.execute("INSERT INTO userfields (tableid, field, namefield, editable) VALUES ('wishes', 'versionsuffix',     '', 1)")
+con.execute("INSERT INTO userfields (tableid, field, namefield, editable) VALUES ('wishes', 'status',            '', 1)")
+con.execute("INSERT INTO userfields (tableid, field, namefield, editable) VALUES ('wishes', 'frametype',     'name', 1)")
+con.execute("INSERT INTO userfields (tableid, field, namefield, editable) VALUES ('wishes', 'firstframe',        '', 1)")
+con.execute("INSERT INTO userfields (tableid, field, namefield, editable) VALUES ('wishes', 'lastframe',         '', 1)")
+con.execute("INSERT INTO userfields (tableid, field, namefield, editable) VALUES ('wishes', 'engine',            '', 1)")
 con.commit()
