@@ -5,7 +5,7 @@
   Project name:           <input name="wish_name" type="text" /><br>
   Render engine:          <select name="en">
                             %for en in enginelist:
-                              <option value="{{en}}">{{en}}</option>
+                              <option value="{{en[0]}}">{{en[0]}}</option>
                             %end #for
                           </select><br>
   Frame type:             <select name="ft">

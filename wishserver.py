@@ -46,7 +46,7 @@ def showproj(wishid):
   except AttributeError:
     uploadtime="" #Else there is no upload time.
   showprojtable = [[]] #Hack: Include an empty row so that there will be no table header
-  showprojtable += [['Wish name:',['/wish/'+wish_id+'/update/wishes.name','wish_name']],['Status:',proj_status],['Frame type:',frametype_name],['Engine:',engine_name]]
+  showprojtable += [['Wish name:',['/wish/'+wish_id+'/update/wishes.name',wish_name]],['Status:',proj_status],['Frame type:',frametype_name],['Engine:',engine_name]]
   if not result[5]:
     showprojtable += [['No Blender file:',['/wish/'+wish_id+'/projupload','Upload .blend file']]]
   else:
