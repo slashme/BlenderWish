@@ -127,12 +127,31 @@ def mod_param(wishid, param):
   vartype= [v for i, v in enumerate(result) if v[1] == mp_tf[1]][0][2]
   if vartype=="TEXT":
     edittype=vartype
+    titletext="change text parameter for project"
   if vartype=="INTEGER":
     edittype='number'
+    titletext="change integer parameter for project"
+  c = conn.cursor()
+  #Again, can't parameterize table name, but we are again safe here.
+  c.execute("SELECT "+mp_tf[1]+" FROM "+mp_tf[0]+" WHERE wishid = " + str(wishid))
+  result = c.fetchall()
+  c.close()
+  editvalue=result[0][0]
+  editdesc=mp_tf[1]
+  editaction="/wish/" + str(wishid) + "/update/" +str(param) #set form action variable
+  editform = template('mod_param', edit_value=editvalue, edit_desc=editdesc, edit_action=editaction, edit_type=edittype, title=titletext, projname=wishidlist[0][1], info="info") #Generate parameter modification form
+  return editform
   return template('not_found', message=str(vartype), title="Not yet implemented") 
   return template('not_found', message=str(mp_tf[0]), title="Not yet implemented") 
 
-#End In progress: Creating form to modify single project parameter
+@app.post('/wish/<wishid:int>/update/<param>') 
+def do_mod_param(wishid, param):
+  '''
+  Modify single parameter of project based on user form input.
+  "param" should have the form "table.field".
+  '''
+  returnvalue=request.forms.getunicode('returnvalue')
+  return template('not_found', message=returnvalue, title="Not yet implemented") 
 
 @app.route('/list') #List projects
 def list():
